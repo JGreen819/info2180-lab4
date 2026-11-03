@@ -63,10 +63,33 @@ $superheroes = [
   ], 
 ];
 
-?>
+$query = filter_input(INPUT_GET, 'query', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+$query = trim($query);
+$search = html_entity_decode($query, ENT_QUOTES);
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+if ($query === '') {
+    echo "<ul>";
+    foreach ($superheroes as $hero) {
+        echo "<li>" .htmlspecialchars($hero['alias']) . "</li>";
+    }
+    echo "</ul>";
+    exit;
+}
+
+$found = null;
+foreach ($superheroes as $hero) {
+    if (strcasecmp($search, $hero['alias']) === 0 || strcasecmp($search, $hero['name']) === 0) {
+        $found = $hero;
+        break;
+    }
+}
+
+if ($found) {
+    echo "<h3>" . htmlspecialchars($found['alias']) . "</h3>";
+    echo "<h4>A.K.A " . htmlspecialchars($found['name']) . "</h4>";
+    echo "<p>" . htmlspecialchars($found['biography']) . "</p>";
+} else {
+    echo "<p class= 'not-found'>Superhero not found</p>";
+}
+
+
